@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>UrbanGCN — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#060810;--s1:#0d1117;--s2:#131924;--border:rgba(255,255,255,0.06);
+      --accent:#00d4ff;--accent2:#7c6af7;--gold:#f5a623;
+      --text:#dde4f0;--muted:#5a6478;--sw:250px;
+      --green:#34d399;--red:#f87171;
+    }
+    html,body{height:100%}
+    body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;display:flex}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:50}
+    .sidebar-top{padding:24px 20px;border-bottom:1px solid var(--border)}
+    .brand{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px}
+    .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent);animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 8px var(--accent)}50%{box-shadow:0 0 20px var(--accent),0 0 40px rgba(0,212,255,0.2)}}
+    .sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px}
+    .nav-label{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:14px 10px 6px;font-weight:600}
+    .nav-a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:0.875rem;font-weight:500;transition:all .2s}
+    .nav-a:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .nav-a.active{background:rgba(0,212,255,0.08);color:var(--accent);border:1px solid rgba(0,212,255,0.15)}
+    .nav-icon{font-size:1rem;width:18px;text-align:center}
+    .sidebar-footer{padding:14px 12px;border-top:1px solid var(--border)}
+    .user-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px}
+    .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#060810;flex-shrink:0}
+    .user-meta .uname{font-size:0.875rem;font-weight:600}
+    .user-meta .urole{font-size:0.72rem;color:var(--accent);margin-top:1px;font-weight:500}
+    .logout-a{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;color:#f87171;text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid rgba(248,113,113,0.15);background:rgba(248,113,113,0.04);transition:all .2s}
+    .logout-a:hover{background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3)}
+
+    /* MAIN */
+    .main{margin-left:var(--sw);flex:1;min-height:100vh;padding:36px 44px}
+
+    /* LOADER */
+    #loader{display:none;position:fixed;inset:0;background:rgba(6,8,16,0.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+    #loader.show{display:flex}
+    .spin{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .spin-label{color:var(--muted);font-size:0.88rem;letter-spacing:.5px}
+    .spin-sub{color:var(--accent);font-size:0.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <a href="/" class="brand"><div class="brand-dot"></div> UrbanGCN</a>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="{% url 'userhome' %}" class="nav-a {% if request.resolver_match.url_name == 'userhome' %}active{% endif %}">
+      <span class="nav-icon">⊞</span> Dashboard
+    </a>
+    <a href="{% url 'userpredict' %}" class="nav-a {% if request.resolver_match.url_name == 'userpredict' %}active{% endif %}">
+      <span class="nav-icon">◎</span> New Valuation
+    </a>
+    <div class="nav-label">Info</div>
+    <a href="/" class="nav-a"><span class="nav-icon">🌐</span> Zone Map</a>
+    <a href="/" class="nav-a"><span class="nav-icon">⚡</span> GCN Architecture</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar">{{ request.user.username|first|upper }}</div>
+      <div class="user-meta">
+        <div class="uname">{{ request.user.username }}</div>
+        <div class="urole">● Online</div>
+      </div>
+    </div>
+    <a href="{% url 'user_logout' %}" class="logout-a">↩ Sign Out</a>
+  </div>
+</aside>
+<main class="main">{% block contents %}{% endblock %}</main>
+<div id="loader">
+  <div class="spin"></div>
+  <div class="spin-label">Running GCN model...</div>
+  <div class="spin-sub">Computing graph adjacency</div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded",function(){
+    document.querySelectorAll("form").forEach(f=>{
+      f.addEventListener("submit",()=>document.getElementById("loader").classList.add("show"))
+    })
+  })
+</script>
+</body>
+</html>

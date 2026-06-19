@@ -1,0 +1,310 @@
+{% extends "User/userbase.html" %}
+{% block contents %}
+<style>
+  .ph{margin-bottom:28px}
+  .ph h1{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:1px;margin-bottom:6px}
+  .ph p{color:var(--muted);font-size:0.92rem}
+  .layout{display:grid;grid-template-columns:1fr 360px;gap:22px;align-items:start}
+
+  /* FORM */
+  .fcard{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+  .fcard-head{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+  .fcard-head h2{font-size:1rem;font-weight:700}
+  .tag{background:rgba(0,212,255,0.1);color:var(--accent);border:1px solid rgba(0,212,255,0.2);border-radius:6px;padding:3px 10px;font-size:0.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .fbody{padding:28px}
+  .sec-label{font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:14px;margin-top:24px;display:flex;align-items:center;gap:8px}
+  .sec-label:first-child{margin-top:0}
+  .sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+  .fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .field input,.field select{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:0.9rem;outline:none;transition:border-color .2s;width:100%}
+  .field input:focus,.field select:focus{border-color:var(--accent)}
+  .field select option{background:#131924}
+
+  /* TOGGLE AMENITIES */
+  .tog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .tog{position:relative}
+  .tog input{position:absolute;opacity:0;width:0;height:0}
+  .tog-label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .2s;background:rgba(255,255,255,0.02);text-align:center}
+  .tog-icon{font-size:1.2rem}
+  .tog-text{font-size:0.75rem;color:var(--muted);font-weight:600}
+  .tog input:checked+.tog-label{border-color:rgba(0,212,255,0.4);background:rgba(0,212,255,0.07);color:var(--accent)}
+  .tog input:checked+.tog-label .tog-text{color:var(--accent)}
+
+  /* MAP */
+  #map{height:240px;border-radius:10px;margin-top:6px;border:1px solid var(--border)}
+  .map-hint{font-size:0.75rem;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:5px}
+  #map-pin-info{font-size:0.78rem;color:var(--accent);margin-top:6px;min-height:18px;font-weight:600}
+
+  /* SUBMIT */
+  .submit-btn{width:100%;margin-top:28px;background:var(--accent);border:none;color:#060810;padding:14px;border-radius:12px;font-size:1rem;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:.5px}
+  .submit-btn:hover{background:#00b8d9;transform:translateY(-2px);box-shadow:0 14px 36px rgba(0,212,255,0.35)}
+
+  /* RIGHT PANEL */
+  .rpanel{display:flex;flex-direction:column;gap:16px}
+
+  /* RESULT */
+  .result-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center}
+  .result-card.active{border-color:rgba(0,212,255,0.3);background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(124,106,247,0.04))}
+  .res-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:14px;font-weight:600}
+  .res-price{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:2px;color:var(--accent);line-height:1;margin-bottom:6px}
+  .res-sub{font-size:0.8rem;color:var(--muted)}
+  .res-placeholder{color:var(--muted);font-size:0.88rem;padding:12px 0}
+  .res-placeholder .big{font-size:2.5rem;margin-bottom:10px;opacity:.4}
+
+  /* BREAKDOWN */
+  .breakdown-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px}
+  .bc-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:16px}
+  .brow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.84rem}
+  .brow:last-child{border-bottom:none}
+  .bkey{color:var(--muted)}
+  .bval{font-weight:600}
+  .yes{color:#34d399}.no{color:var(--muted)}
+
+  /* ZONE */
+  .zone-card{border-radius:14px;padding:20px 22px;border:1px solid}
+  .zone-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:10px;opacity:.7}
+  .zone-name{font-size:1rem;font-weight:700;margin-bottom:4px}
+  .zone-desc{font-size:0.8rem;opacity:.65}
+  .zone-mult-badge{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:100px;font-size:0.78rem;font-weight:700;letter-spacing:.5px}
+
+  /* CONFIDENCE */
+  .conf-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+  .conf-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:12px}
+  .conf-bar-bg{background:rgba(255,255,255,0.06);border-radius:100px;height:8px;margin-bottom:8px}
+  .conf-bar-fill{height:8px;border-radius:100px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 1s ease}
+  .conf-pct{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px;color:var(--accent)}
+
+  /* GRAPH VIZ */
+  .gcn-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+  .gcn-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:14px}
+  .gcn-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:0.8rem}
+  .gcn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .gcn-bar-bg{flex:1;background:rgba(255,255,255,0.05);border-radius:100px;height:5px}
+  .gcn-bar-fill{height:5px;border-radius:100px;transition:width .8s ease}
+  .gcn-mult{color:var(--muted);font-size:0.75rem;width:36px;text-align:right;font-weight:600}
+
+  /* ERROR */
+  .err-bar{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:14px 18px;font-size:0.87rem;color:#fca5a5;display:flex;gap:10px;align-items:flex-start;margin-bottom:20px}
+
+  @media(max-width:960px){.layout{grid-template-columns:1fr}}
+</style>
+
+<div class="ph">
+  <h1>GCN Property Valuation</h1>
+  <p>Pin a location on the megacity map, enter property details, and get an instant AI estimate.</p>
+</div>
+
+{% if error %}<div class="err-bar">⚠ {{ error }}</div>{% endif %}
+
+<div class="layout">
+
+  <!-- ── FORM ── -->
+  <div class="fcard">
+    <div class="fcard-head">
+      <span class="tag">ASRGCNN Model</span>
+      <h2>Property Features</h2>
+    </div>
+    <div class="fbody">
+      <form method="POST" id="pform">
+        {% csrf_token %}
+        <input type="hidden" name="lat" id="lat" value="{{ inputs.lat|default:'' }}">
+        <input type="hidden" name="lon" id="lon" value="{{ inputs.lon|default:'' }}">
+
+        <!-- MAP -->
+        <div class="sec-label">📍 Location Pin</div>
+        <div id="map"></div>
+        <div id="map-pin-info">{% if inputs.lat %}📌 Pinned: {{ inputs.lat|floatformat:4 }}, {{ inputs.lon|floatformat:4 }}{% else %}Click the map to pin a location{% endif %}</div>
+        <p class="map-hint">🔵 The GCN computes proximity scores to all 6 megacity zone nodes</p>
+
+        <!-- STRUCTURAL -->
+        <div class="sec-label">🏗 Structural Details</div>
+        <div class="fg2">
+          <div class="field"><label>Area (sq ft)</label><input type="number" name="area" min="100" max="50000" placeholder="e.g. 1500" value="{{ inputs.area|default:'' }}" required></div>
+          <div class="field"><label>Bedrooms</label><input type="number" name="bedrooms" min="1" max="15" placeholder="e.g. 3" value="{{ inputs.bedrooms|default:'' }}" required></div>
+          <div class="field"><label>Bathrooms</label><input type="number" name="bathrooms" min="1" max="10" placeholder="e.g. 2" value="{{ inputs.bathrooms|default:'' }}"></div>
+          <div class="field"><label>Stories / Floors</label>
+            <select name="stories">
+              <option value="1" {% if inputs.stories == 1 %}selected{% endif %}>1 Floor</option>
+              <option value="2" {% if inputs.stories == 2 %}selected{% endif %}>2 Floors</option>
+              <option value="3" {% if inputs.stories == 3 %}selected{% endif %}>3 Floors</option>
+              <option value="4" {% if inputs.stories == 4 %}selected{% endif %}>4+ Floors</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- AMENITIES -->
+        <div class="sec-label">✨ Amenities</div>
+        <div class="tog-grid">
+          <div class="tog"><input type="checkbox" name="mainroad" id="mainroad" value="1" {% if inputs.mainroad %}checked{% endif %}><label class="tog-label" for="mainroad"><span class="tog-icon">🛣</span><span class="tog-text">Main Road</span></label></div>
+          <div class="tog"><input type="checkbox" name="guestroom" id="guestroom" value="1" {% if inputs.guestroom %}checked{% endif %}><label class="tog-label" for="guestroom"><span class="tog-icon">🛏</span><span class="tog-text">Guest Room</span></label></div>
+          <div class="tog"><input type="checkbox" name="basement" id="basement" value="1" {% if inputs.basement %}checked{% endif %}><label class="tog-label" for="basement"><span class="tog-icon">⬇</span><span class="tog-text">Basement</span></label></div>
+          <div class="tog"><input type="checkbox" name="hotwaterheating" id="hotwaterheating" value="1" {% if inputs.hotwaterheating %}checked{% endif %}><label class="tog-label" for="hotwaterheating"><span class="tog-icon">🔥</span><span class="tog-text">Hot Water</span></label></div>
+          <div class="tog"><input type="checkbox" name="airconditioning" id="airconditioning" value="1" {% if inputs.airconditioning %}checked{% endif %}><label class="tog-label" for="airconditioning"><span class="tog-icon">❄</span><span class="tog-text">AC</span></label></div>
+          <div class="tog"><input type="checkbox" name="prefarea" id="prefarea" value="1" {% if inputs.prefarea %}checked{% endif %}><label class="tog-label" for="prefarea"><span class="tog-icon">⭐</span><span class="tog-text">Pref. Area</span></label></div>
+        </div>
+
+        <!-- PARKING + FURNISHING -->
+        <div class="sec-label">🚗 Additional</div>
+        <div class="fg2">
+          <div class="field"><label>Parking Spaces</label>
+            <select name="parking">
+              <option value="0" {% if inputs.parking == 0 %}selected{% endif %}>None</option>
+              <option value="1" {% if inputs.parking == 1 %}selected{% endif %}>1 Space</option>
+              <option value="2" {% if inputs.parking == 2 %}selected{% endif %}>2 Spaces</option>
+              <option value="3" {% if inputs.parking == 3 %}selected{% endif %}>3+ Spaces</option>
+            </select>
+          </div>
+          <div class="field"><label>Furnishing</label>
+            <select name="furnishingstatus">
+              <option value="0" {% if inputs.furnishingstatus == 0 %}selected{% endif %}>Furnished</option>
+              <option value="1" {% if inputs.furnishingstatus == 1 %}selected{% endif %}>Semi-Furnished</option>
+              <option value="2" {% if inputs.furnishingstatus == 2 %}selected{% endif %}>Unfurnished</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">◎ &nbsp; Estimate with GCN</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="rpanel">
+
+    <!-- RESULT -->
+    <div class="result-card {% if result %}active{% endif %}">
+      {% if result %}
+        <div class="res-label">GCN Estimated Value</div>
+        <div class="res-price">₹ {{ result.price|floatformat:0 }}</div>
+        <div class="res-sub">₹ {{ result.price_per_sqft }} / sq ft · {{ inputs.bedrooms }} BHK, {{ inputs.area }} sq ft</div>
+      {% else %}
+        <div class="res-placeholder">
+          <div class="big">◎</div>
+          Fill in property details and submit to see the GCN price estimate.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- CONFIDENCE -->
+    {% if result %}
+    <div class="conf-card">
+      <div class="conf-label">Model Confidence</div>
+      <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:{{ result.confidence }}%"></div></div>
+      <div class="conf-pct">{{ result.confidence }}%</div>
+    </div>
+
+    <!-- ZONE -->
+    {% if result.zone %}
+    <div class="zone-card" style="background:rgba({{ result.zone.color|slice:'1:' }}, 0.06);border-color:rgba(0,0,0,0.2)">
+      <div class="zone-title" style="color:{{ result.zone.color }}">Detected Zone</div>
+      <div class="zone-name">{{ result.zone.label }}</div>
+      <div class="zone-desc">{{ result.zone.description }}</div>
+      <span class="zone-mult-badge" style="background:rgba(255,255,255,0.06);color:{{ result.zone.color }}">Graph Multiplier ×{{ result.graph_multiplier }}</span>
+    </div>
+    {% endif %}
+
+    <!-- BREAKDOWN -->
+    <div class="breakdown-card">
+      <div class="bc-title">Input Summary</div>
+      <div class="brow"><span class="bkey">Area</span><span class="bval">{{ inputs.area }} sq ft</span></div>
+      <div class="brow"><span class="bkey">Bedrooms / Bathrooms</span><span class="bval">{{ inputs.bedrooms }}B / {{ inputs.bathrooms }}Ba</span></div>
+      <div class="brow"><span class="bkey">Stories</span><span class="bval">{{ inputs.stories }}</span></div>
+      <div class="brow"><span class="bkey">Main Road</span><span class="bval {% if inputs.mainroad %}yes{% else %}no{% endif %}">{% if inputs.mainroad %}✓ Yes{% else %}No{% endif %}</span></div>
+      <div class="brow"><span class="bkey">AC / Hot Water</span><span class="bval {% if inputs.airconditioning %}yes{% else %}no{% endif %}">{% if inputs.airconditioning %}✓{% else %}No{% endif %} / {% if inputs.hotwaterheating %}✓{% else %}No{% endif %}</span></div>
+      <div class="brow"><span class="bkey">Parking</span><span class="bval">{{ inputs.parking }} space(s)</span></div>
+      {% if inputs.lat %}<div class="brow"><span class="bkey">Coordinates</span><span class="bval">{{ inputs.lat|floatformat:3 }}, {{ inputs.lon|floatformat:3 }}</span></div>{% endif %}
+    </div>
+
+    <!-- GCN ZONE GRAPH VIZ -->
+    <div class="gcn-card">
+      <div class="gcn-title">Zone Graph Influence</div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#f5a623"></div><span style="font-size:0.75rem;color:var(--muted);width:120px">CBD</span><div class="gcn-bar-bg"><div class="gcn-bar-fill" style="width:{{ result.graph_multiplier|floatformat:0 }}%;background:#f5a623;width:{% widthratio result.graph_multiplier 1.5 100 %}%"></div></div><span class="gcn-mult">×1.45</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#7c6af7"></div><span style="font-size:0.75rem;color:var(--muted);width:120px">IT Corridor</span><div class="gcn-bar-bg"><div class="gcn-bar-fill" style="background:#7c6af7;width:90%"></div></div><span class="gcn-mult">×1.35</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#34d399"></div><span style="font-size:0.75rem;color:var(--muted);width:120px">New Township</span><div class="gcn-bar-bg"><div class="gcn-bar-fill" style="background:#34d399;width:80%"></div></div><span class="gcn-mult">×1.20</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#fb923c"></div><span style="font-size:0.75rem;color:var(--muted);width:120px">Airport Zone</span><div class="gcn-bar-bg"><div class="gcn-bar-fill" style="background:#fb923c;width:73%"></div></div><span class="gcn-mult">×1.10</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#5eead4"></div><span style="font-size:0.75rem;color:var(--muted);width:120px">Old Town</span><div class="gcn-bar-bg"><div class="gcn-bar-fill" style="background:#5eead4;width:63%"></div></div><span class="gcn-mult">×0.95</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#94a3b8"></div><span style="font-size:0.75rem;color:var(--muted);width:120px">Suburban</span><div class="gcn-bar-bg"><div class="gcn-bar-fill" style="background:#94a3b8;width:53%"></div></div><span class="gcn-mult">×0.80</span></div>
+    </div>
+
+    {% else %}
+    <!-- PRE-RESULT INFO -->
+    <div class="gcn-card">
+      <div class="gcn-title">Zone Multipliers</div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#f5a623"></div><span style="font-size:0.78rem;color:var(--text)">Central Business District</span><span class="gcn-mult">×1.45</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#7c6af7"></div><span style="font-size:0.78rem;color:var(--text)">IT Corridor</span><span class="gcn-mult">×1.35</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#34d399"></div><span style="font-size:0.78rem;color:var(--text)">New Township</span><span class="gcn-mult">×1.20</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#fb923c"></div><span style="font-size:0.78rem;color:var(--text)">Airport Zone</span><span class="gcn-mult">×1.10</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#5eead4"></div><span style="font-size:0.78rem;color:var(--text)">Old Town</span><span class="gcn-mult">×0.95</span></div>
+      <div class="gcn-row"><div class="gcn-dot" style="background:#94a3b8"></div><span style="font-size:0.78rem;color:var(--text)">Suburban Outskirts</span><span class="gcn-mult">×0.80</span></div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- LEAFLET -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const zones = {{ zones_json|safe }};
+
+// Dark tile layer
+const map = L.map('map', {zoomControl: true}).setView([20.296, 85.824], 12);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© CartoDB', subdomains: 'abcd', maxZoom: 19
+}).addTo(map);
+
+// Zone markers
+Object.entries(zones).forEach(([key, z]) => {
+  const circle = L.circleMarker([z.lat, z.lon], {
+    radius: 10, fillColor: z.color, color: z.color,
+    weight: 2, opacity: 0.9, fillOpacity: 0.25
+  }).addTo(map).bindTooltip(`<strong>${z.label}</strong>`, {className:'gcn-tooltip'});
+  // zone label
+  L.marker([z.lat, z.lon], {
+    icon: L.divIcon({
+      className:'',
+      html:`<div style="color:${z.color};font-size:10px;font-weight:700;white-space:nowrap;text-shadow:0 1px 4px #000">${z.label}</div>`,
+      iconAnchor:[0,0]
+    })
+  }).addTo(map);
+});
+
+let marker = null;
+{% if inputs.lat %}
+marker = L.marker([{{ inputs.lat }}, {{ inputs.lon }}], {
+  icon: L.divIcon({className:'', html:'<div style="width:14px;height:14px;border-radius:50%;background:#00d4ff;border:2px solid white;box-shadow:0 0 12px #00d4ff"></div>', iconAnchor:[7,7]})
+}).addTo(map);
+{% endif %}
+
+map.on('click', function(e) {
+  const {lat, lng} = e.latlng;
+  document.getElementById('lat').value = lat.toFixed(6);
+  document.getElementById('lon').value = lng.toFixed(6);
+  document.getElementById('map-pin-info').textContent = `📌 Pinned: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  if (marker) map.removeLayer(marker);
+  marker = L.marker([lat, lng], {
+    icon: L.divIcon({className:'', html:'<div style="width:14px;height:14px;border-radius:50%;background:#00d4ff;border:2px solid white;box-shadow:0 0 12px #00d4ff"></div>', iconAnchor:[7,7]})
+  }).addTo(map).bindPopup('📍 Selected').openPopup();
+});
+
+// Fix unchecked checkbox values
+document.getElementById('pform').addEventListener('submit', function() {
+  ['mainroad','guestroom','basement','hotwaterheating','airconditioning','prefarea'].forEach(id => {
+    const cb = document.getElementById(id);
+    if (!cb.checked) {
+      const h = document.createElement('input');
+      h.type='hidden'; h.name=id; h.value='0';
+      document.getElementById('pform').appendChild(h);
+    }
+  });
+});
+</script>
+<style>
+.leaflet-tooltip.gcn-tooltip{background:#0d1117;border:1px solid rgba(0,212,255,0.3);color:#dde4f0;font-family:'Space Grotesk',sans-serif;font-size:0.78rem;border-radius:6px}
+</style>
+
+{% endblock %}

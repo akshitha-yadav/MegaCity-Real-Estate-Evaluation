@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AI Real Estate Price Predictor</title>
+  <meta name="description" content="Predict property prices using Graph Neural Networks">
+  <meta name="keywords" content="AI, house price prediction, GCN, real estate">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f8f9fa;
+    }
+
+    .navbar-custom {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #e3f2fd, #ffffff);
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-weight: 700;
+    }
+
+    .btn-custom {
+      border-radius: 30px;
+      padding: 10px 25px;
+    }
+
+    .card-custom {
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border: none;
+    }
+
+    footer {
+      background: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      margin-top: 40px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- 🔹 Navbar -->
+  <header class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+
+      <a class="navbar-brand fw-bold text-primary" href="#">
+        🏠 AI Price Predictor
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-end" id="nav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'home_page' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'userpredict' %}">Predict</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login_page' %}">Login</a>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- 🔹 Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="display-5">Smart Property Price Prediction</h1>
+      <p class="lead text-muted mt-3">
+        Powered by Graph Neural Networks for accurate real estate valuation
+      </p>
+      <a href="{% url 'userpredict' %}" class="btn btn-primary btn-lg btn-custom mt-3">
+        🚀 Try Prediction
+      </a>
+    </div>
+  </section>
+
+  <!-- 🔹 Dynamic Content -->
+  <main class="container mt-5">
+    {% block contents %}
+    {% endblock %}
+  </main>
+
+  <!-- 🔹 Footer -->
+  <footer>
+    © 2026 AI Real Estate Predictor | Built with Django + PyTorch
+  </footer>
+
+  <!-- 🔹 Loader -->
+  <div id="loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999;">
+    <div class="d-flex justify-content-center align-items-center h-100">
+      <div>
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3 text-center">Running AI model...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+  <script>
+    // Show loader on form submit
+    document.addEventListener("DOMContentLoaded", function () {
+      const forms = document.querySelectorAll("form");
+      forms.forEach(form => {
+        form.addEventListener("submit", () => {
+          document.getElementById("loader").style.display = "block";
+        });
+      });
+    });
+  </script>
+
+</body>
+
+</html>

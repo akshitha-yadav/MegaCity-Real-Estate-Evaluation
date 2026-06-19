@@ -1,0 +1,40 @@
+{% extends "Admin/adminbase.html" %}
+{% block contents %}
+<style>
+  .ph{margin-bottom:28px}.ph h1{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:1px;margin-bottom:6px}.ph p{color:var(--muted);font-size:.92rem}
+  .tcard{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .thead{padding:20px 28px;border-bottom:1px solid var(--border)}
+  .thead span{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;padding:11px 28px;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:600}
+  td{padding:13px 28px;font-size:.88rem;border-bottom:1px solid rgba(255,255,255,.03)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(255,255,255,.015)}
+  .pcell{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.5px;color:var(--a2)}
+  .empty{text-align:center;padding:52px;color:var(--muted)}
+  .empty-icon{font-size:2.5rem;margin-bottom:12px}
+</style>
+<div class="ph"><h1>Prediction Log</h1><p>All GCN valuations run across the platform.</p></div>
+<div class="tcard">
+  <div class="thead"><span>All Predictions</span></div>
+  {% if predictions %}
+  <table>
+    <thead><tr><th>User</th><th>Est. Price</th><th>Area (sqft)</th><th>BHK</th><th>Location</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for p in predictions %}
+      <tr>
+        <td><strong>{{ p.user.username }}</strong></td>
+        <td class="pcell">₹ {{ p.predicted_price|floatformat:0 }}</td>
+        <td>{{ p.user_input.area }}</td>
+        <td>{{ p.user_input.bedrooms }}B {{ p.user_input.bathrooms }}Ba</td>
+        <td style="color:var(--muted)">{% if p.user_input.lat %}{{ p.user_input.lat|floatformat:3 }}, {{ p.user_input.lon|floatformat:3 }}{% else %}—{% endif %}</td>
+        <td style="color:var(--muted)">{{ p.timestamp|date:"d M Y, H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty"><div class="empty-icon">◎</div><p>No predictions have been made yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

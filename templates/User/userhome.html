@@ -1,0 +1,121 @@
+{% extends "User/userbase.html" %}
+{% block contents %}
+<style>
+  .ph{margin-bottom:32px}
+  .ph h1{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:1px;margin-bottom:6px}
+  .ph p{color:var(--muted);font-size:0.92rem}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:32px}
+  .sc{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px 24px}
+  .sc .slabel{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:10px}
+  .sc .sval{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px}
+  .sc .ssub{font-size:0.78rem;color:var(--muted);margin-top:4px}
+  .cta-strip{background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(124,106,247,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:14px;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:14px}
+  .cta-strip h3{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:1px;margin-bottom:4px}
+  .cta-strip p{color:var(--muted);font-size:0.85rem}
+  .btn-cta{background:var(--accent);color:#060810;text-decoration:none;padding:11px 26px;border-radius:10px;font-weight:700;font-size:0.9rem;transition:all .2s;white-space:nowrap}
+  .btn-cta:hover{background:#00b8d9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,255,0.3)}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+  .card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:24px}
+  .card-title{font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:18px}
+  .irow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.87rem}
+  .irow:last-child{border-bottom:none}
+  .ikey{color:var(--muted)}
+  .ival{font-weight:600}
+  .badge-on{background:rgba(52,211,153,0.1);color:#34d399;border:1px solid rgba(52,211,153,0.2);padding:3px 10px;border-radius:100px;font-size:0.75rem;font-weight:700}
+  .history-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .hcard-head{padding:20px 26px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .hcard-head span{font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;padding:11px 26px;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:600}
+  td{padding:13px 26px;font-size:0.87rem;border-bottom:1px solid rgba(255,255,255,0.03)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(255,255,255,0.015)}
+  .price-cell{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.5px;color:var(--accent)}
+  .empty{text-align:center;padding:52px;color:var(--muted)}
+  .empty-icon{font-size:2.5rem;margin-bottom:12px}
+  @media(max-width:800px){.two-col{grid-template-columns:1fr}}
+</style>
+
+<div class="ph">
+  <h1>Welcome, {{ user.username }}</h1>
+  <p>Your megacity real estate valuation dashboard</p>
+</div>
+
+<div class="stats">
+  <div class="sc">
+    <div class="slabel">Total Valuations</div>
+    <div class="sval">{{ total_predictions }}</div>
+    <div class="ssub">All time</div>
+  </div>
+  <div class="sc">
+    <div class="slabel">Avg. Predicted Price</div>
+    <div class="sval" style="font-size:1.5rem">{% if avg_price %}₹{{ avg_price|floatformat:0 }}{% else %}—{% endif %}</div>
+    <div class="ssub">Across all predictions</div>
+  </div>
+  <div class="sc">
+    <div class="slabel">Model</div>
+    <div class="sval" style="font-size:1.3rem;color:var(--accent)">ASRGCNN</div>
+    <div class="ssub">Graph Conv. Network</div>
+  </div>
+  <div class="sc">
+    <div class="slabel">Status</div>
+    <div class="sval" style="font-size:1.1rem;padding-top:6px"><span class="badge-on">● Active</span></div>
+    <div class="ssub">Since {{ user.date_joined|date:"M Y" }}</div>
+  </div>
+</div>
+
+<div class="cta-strip">
+  <div>
+    <h3>Run a New Property Valuation</h3>
+    <p>Pin a location on the megacity map and enter property features for an instant GCN price estimate.</p>
+  </div>
+  <a href="{% url 'userpredict' %}" class="btn-cta">New Valuation →</a>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">Account Info</div>
+    <div class="irow"><span class="ikey">Username</span><span class="ival">{{ user.username }}</span></div>
+    <div class="irow"><span class="ikey">Email</span><span class="ival">{{ user.email|default:"—" }}</span></div>
+    <div class="irow"><span class="ikey">Status</span><span class="ival"><span class="badge-on">● Active</span></span></div>
+    <div class="irow"><span class="ikey">Member since</span><span class="ival">{{ user.date_joined|date:"d M Y" }}</span></div>
+    <div class="irow"><span class="ikey">Last login</span><span class="ival">{{ user.last_login|date:"d M, H:i" }}</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Model Info</div>
+    <div class="irow"><span class="ikey">Architecture</span><span class="ival" style="color:var(--accent)">ASRGCNN</span></div>
+    <div class="irow"><span class="ikey">Framework</span><span class="ival">PyTorch + Django</span></div>
+    <div class="irow"><span class="ikey">Features</span><span class="ival">12 structural inputs</span></div>
+    <div class="irow"><span class="ikey">Location</span><span class="ival">6 zone graph nodes</span></div>
+    <div class="irow"><span class="ikey">Currency</span><span class="ival">₹ Indian Rupee</span></div>
+  </div>
+</div>
+
+<div class="history-card">
+  <div class="hcard-head">
+    <span>Recent Valuations</span>
+    <a href="{% url 'userpredict' %}" style="font-size:0.82rem;color:var(--accent);text-decoration:none;font-weight:600">+ New →</a>
+  </div>
+  {% if predictions %}
+  <table>
+    <thead><tr><th>#</th><th>Estimated Price</th><th>Area (sqft)</th><th>BHK</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for p in predictions %}
+      <tr>
+        <td style="color:var(--muted)">{{ forloop.counter }}</td>
+        <td class="price-cell">₹ {{ p.predicted_price|floatformat:0 }}</td>
+        <td>{{ p.user_input.area }}</td>
+        <td>{{ p.user_input.bedrooms }}B {{ p.user_input.bathrooms }}Ba</td>
+        <td style="color:var(--muted)">{{ p.timestamp|date:"d M Y, H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon">◎</div>
+    <p>No valuations yet. <a href="{% url 'userpredict' %}" style="color:var(--accent)">Run your first →</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
